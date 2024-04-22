@@ -13,20 +13,20 @@
 ![Alt text](./Images/d.png)
 ![Alt text](./Images/e.png)
 
-### 5. 
+### 5. Generated public and private key
+![Alt text](./Images/f.png)
+
+### 6. Copied keypair from master to slave node and ssh into slave from master.
+![Alt text](./Images/g.png)
+
+### 7. Pinged slave mode from master node
+![Alt text](./Images/h.png)
+
+### 8. Output of playbook
 ![Alt text](./Images/z.png)
 
-### 6. Executed my script on the master node for testing
-![Alt text](./Images/z.png)
+### 9. Brower output of laravel deployment
+![ALt text](./Images/z.png)
 
-### 7. Executed my script on the master node for testing
-![Alt text](./Images/z.png)
-
-### 8. Executed my script on the master node for testing
-![Alt text](./Images/z.png)
-
-### 9. Executed my script on the master node for testing
-![Alt text](./Images/z.png)
-
-### 10. Executed my script on the master node for testing
+### 10. Output of cron job
 ![Alt text](./Images/z.png)
