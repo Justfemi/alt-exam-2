@@ -114,13 +114,13 @@ sudo sed -i "25 s/^#//g" /var/www/laravel/.env
 sudo sed -i "26 s/^#//g" /var/www/laravel/.env
 sudo sed -i "27 s/^#//g" /var/www/laravel/.env
 
-# Replace the database connection details in the .env fiel
+# Replace the database connection details in the .env file
 sudo sed -i '22 s/=sqlite/=mysql/' /var/www/laravel/.env
 sudo sed -i '23 s/=127.0.0.1/=localhost/' /var/www/laravel/.env
 sudo sed -i '24 s/=3306/=3306/' /var/www/laravel/.env
-sudo sed -i '25 s/=laravel/=testdb/' /var/www/laravel/.env
+sudo sed -i '25 s/=laravel/=laraveldb/' /var/www/laravel/.env
 sudo sed -i '26 s/=root/=femi/' /var/www/laravel/.env
-sudo sed -i '27 s/=/=testpasswd/' /var/www/laravel/.env
+sudo sed -i '27 s/=/=dbpasswd/' /var/www/laravel/.env
 
 # Generate a new application key for laravel
 sudo php artisan key:generate
