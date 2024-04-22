@@ -3,20 +3,29 @@
     hosts: slave
     become: true
     tasks:
-      - name: I dont know either
-        ansible.builtin.copy;
-          src: /home/vagrant/lamp.sh
-          dest: /home/vagrant/lamp.sh
-          owner: root
-          group: root
-          mode: '0755'
-      
+      - name: Copy deploy_lamp.sh to slave mode
+        tags: copy
+        copy:
+          src: /home/vagrant/deploy_lamp.sh
+          dest: /home/vagrant/deploy_lamp.sh
+          mode: 0755
+
       - name: Install LAMP stack
-        script: /home/vagrant/lamp.sh
-      
-      - Setup cron jon for uptime
+        tags: execute
+        shell: /home/vagrant/deploy_lamp.sh
+
+      - name: Check Laravel application accessibility
+        tags: access
+        uri:
+          url: "{{ server_url }}"
+          status_code: 200
+          timeout: 10
+        register: response
+        ignore_errors: yes
+
+      - name: Setup cron jon for uptime
         cron:
           name: "Check uptime daily at 12:00"
           minute: "0"
           hour: "0"
-          job: "uptime >> home/vagrant/server_uptime.log"
+          job: "uptime >> /home/vagrant/server_uptime.log"
