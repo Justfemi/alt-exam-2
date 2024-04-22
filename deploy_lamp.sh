@@ -1,121 +1,138 @@
 #!/bin/bash
 
-#add the php repository
-sudo add-apt-repository ppa:ondrej/php
+# Update your linux system
+sudo apt-get -y update
 
+# Add the php ondrej repository
+sudo add-apt-repository -y ppa:ondrej/php
 
-sudo apt update
+# Install php some of those php dependencies that are needed for laravel to work
+sudo apt-get -y install php8.2 php8.2-curl php8.2-dom php8.2-mbstring php8.2-xml php8.2-mysql zip unzip
 
-#install php8.2
-sudo apt install php8.2 -y
+# Enable url rewriting
+sudo a2enmod -y rewrite
 
-#install php dependencies
-sudo apt install php8.2-curl php8.2-dom php8.2-mbstring php8.2-xml php8.2-mysql zip unzip
+# Restart your apache server
+sudo systemctl restart apache2
 
-#enable url rewriting
-sudo a2enmod rewrite
-
-#restart apache2 server
-sudo service apache2 restart
-
-#change directory to /usr/bin
+# Change directory in the bin directory
 cd /usr/bin/
 
-#download composer installer
-curl -sS https://getcomposer.org/installer | sudo php
+# Install composer
+install composer
 
-#rename generated file
+# Download Composer installer
+sudo curl -sS https://getcomposer.org/installer | sudo php
+
+# Rename generated file
 sudo mv composer.phar composer
 
-#change directory to /var/www
+# Change directory in /var/www
 cd /var/www/
 
-#clone laravel site from github
+# Clone laravel site from github
 sudo git clone https://github.com/laravel/laravel.git
 
-#change directory to cloned repository
-cd laravel
+# Give current user full ownership
+sudo chown -R $USER:$USER /var/www/laravel
 
-#optimises autoloader for production
-sudo composer install --optimize-autoloader --no-dev
+# Change directory to cloned repo
+cd laravel/
 
-#get latest version of composer
-sudo composer update
+# Install composer autoloader
+install composer autoloader
 
-#copy .example.env to .env
+# Optimize autoloader for production
+composer install --optimize-autoloader --no-dev
+
+# Get latest version of composer
+composer update
+
+# Copy .example.env file to .env 
 sudo cp .env.example .env
 
-#generate APP_KEY for .env file
-sudo php artisan key:generate
-
-#check user of apache2 server
-ps aux | grep "apache" | awk '{print $1}' | grep -v root | head -n 1
-
-#change permission of storage and bootstrap/cache
+# Change permission of storage and bootstrap/cache
 sudo chown -R www-data storage
 sudo chown -R www-data bootstrap/cache
 
-#navigate to the sites-available directory
-cd /etc/apache2/sites-available
+# Navigate to the sites-available directory
+cd /etc/apache2/sites-available/
 
-#create a config file
-sudo touch newlaravel.conf
+# Create a laravel.conf file
+sudo touch laravel.conf
 
-#append content to newlaravel.conf
-sudo echo '
-  <VirtualHost *:80>
-    ServerName  192.168.50.20
+# Append content to laravel.conf
+sudo echo '<VirtualHost *:80>
+    ServerName localhost
     DocumentRoot /var/www/laravel/public
 
-    <Directory /var/www/laravel/public>
-        Options Indexes FollowSymLinks
+    <Directory /var/www/laravel>
         AllowOverride All
-        Require all granted
     </Directory>
 
     ErrorLog ${APACHE_LOG_DIR}/laravel-error.log
     CustomLog ${APACHE_LOG_DIR}/laravel-access.log combined
-  </VirtualHost>' | sudo tee /etc/apache2/sites-available/newlaravel.conf
+</VirtualHost>' | sudo tee /etc/apache2/sites-available/laravel.conf
 
-#enable newlaravel.conf
-sudo a2ensite newlaravel.conf
+# Enable laravel.conf
+sudo a2ensite laravel.conf
 
-#restart apache server
+# Disable default apache2 page
+sudo a2dissite 000-default.conf
+
+# Restart Apache Server
 sudo systemctl restart apache2
 
-#install mysql
-sudo apt-get install mysql-server -y
+# Back to home directory
+cd
 
-#start mysql
+# Install MySQL
+sudo apt-get -y install mysql-server
+
+# Install MySQL client
+sudo apt-get -y install mysql-client
+
+# Start MySQL
 sudo systemctl start mysql
 
-# Create a temporary file to store MySQL commands
-temp_sql_file="$(mktemp)"
-echo "CREATE DATABASE IF NOT EXISTS mylaraveldb;" >> "$temp_sql_file"
-echo "CREATE USER 'femi'@'localhost' IDENTIFIED BY 'mydbpassword';" >> "$temp_sql_file"
-echo "GRANT ALL PRIVILEGES ON mylaraveldb.* TO 'femi'@'localhost';" >> "$temp_sql_file"
-echo "FLUSH PRIVILEGES;" >> "$temp_sql_file"
+# Create a new MySQL database named 'laraveldb'
+sudo mysql -uroot -e "CREATE DATABASE laraveldb;"
 
-# Execute MySQL commands
-sudo mysql < "$temp_sql_file"
+# Create a new MySQL user 'femi' with password 'dbpasswd' for localhost
+sudo mysql -uroot -e "CREATE USER 'femi'@'localhost' IDENTIFIED BY 'dbpasswd';"
 
-#navigate to the .env file
-cd /var/www/laravel/
+# Grant all priviledges on the 'laraveldb' to the 'femi' user
+sudo mysql -uroot -e "GRANT ALL PRIVILEGES ON laraveldb.* TO 'femi'@'localhost';"
 
-# Remove the temporary SQL file
-rm -f "$temp_sql_file"
+# Navigate to the .env file
+cd /var/www/laravel
 
-# Append database connection information to .env file
-echo "DB_CONNECTION=mysql" >> .env
-echo "DB_HOST=localhost" >> .env
-echo "DB_PORT=3306" >> .env
-echo "DB_DATABASE=mylaraveldb" >> .env
-echo "DB_USERNAME=femi" >> .env
-echo "DB_PASSWORD=mydbpassword" >> .env
+# Uncomment line 23-27 in the .env file using sed command
+sudo sed -i "23 s/^#//g" /var/www/laravel/.env
+sudo sed -i "24 s/^#//g" /var/www/laravel/.env
+sudo sed -i "25 s/^#//g" /var/www/laravel/.env
+sudo sed -i "26 s/^#//g" /var/www/laravel/.env
+sudo sed -i "27 s/^#//g" /var/www/laravel/.env
 
-# Run migration
+# Replace the database connection details in the .env fiel
+sudo sed -i '22 s/=sqlite/=mysql/' /var/www/laravel/.env
+sudo sed -i '23 s/=127.0.0.1/=localhost/' /var/www/laravel/.env
+sudo sed -i '24 s/=3306/=3306/' /var/www/laravel/.env
+sudo sed -i '25 s/=laravel/=testdb/' /var/www/laravel/.env
+sudo sed -i '26 s/=root/=femi/' /var/www/laravel/.env
+sudo sed -i '27 s/=/=testpasswd/' /var/www/laravel/.env
+
+# Generate a new application key for laravel
+sudo php artisan key:generate
+
+# Create a symbolic link to the storage directory
+sudo php artisan storage:link
+
+# Run database migration
 sudo php artisan migrate
 
-# Output success message
-echo "MySQL setup completed successfully."
+# Seed database with test data
+sudo php artisan db:seed
 
+# Restart apache2 server
+sudo systemctl restart apache2
