@@ -1,0 +1,22 @@
+---
+  - name: Deploy LAMP on slave node
+    hosts: slave
+    become: true
+    tasks:
+      - name: I dont know either
+        ansible.builtin.copy;
+          src: /home/vagrant/lamp.sh
+          dest: /home/vagrant/lamp.sh
+          owner: root
+          group: root
+          mode: '0755'
+      
+      - name: Install LAMP stack
+        script: /home/vagrant/lamp.sh
+      
+      - Setup cron jon for uptime
+        cron:
+          name: "Check uptime daily at 12:00"
+          minute: "0"
+          hour: "0"
+          job: "uptime >> home/vagrant/server_uptime.log"
