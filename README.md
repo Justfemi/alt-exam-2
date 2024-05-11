@@ -26,7 +26,7 @@
 ![Alt text](./Images/z.png)
 
 ### 9. Brower output of laravel deployment
-![ALt text](./Images/z.png)
+![ALt text](./Images/e.png)
 
 ### 10. Output of cron job
 ![Alt text](./Images/z.png)
